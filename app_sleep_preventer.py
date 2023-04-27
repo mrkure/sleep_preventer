@@ -14,42 +14,46 @@ from PyQt5.QtWidgets import  QSystemTrayIcon, QWidget, QAction, QMenu, QApplicat
 import threading, os, sys
 import win32api, win32con, time
 
-path_icon_running = rf'{os.path.dirname(os.path.realpath(__file__))}\res\running.png'
-path_icon_stopped = rf'{os.path.dirname(os.path.realpath(__file__))}\res\stopped.png'
+path_icon_running = rf'{os.path.dirname(os.path.realpath(__file__))}\res\running.ico'
+path_icon_stopped = rf'{os.path.dirname(os.path.realpath(__file__))}\res\stopped.ico'
 
-class SleepPreventer(QSystemTrayIcon):
-    def __init__(self, parent):
-        QSystemTrayIcon.__init__(self, QIcon(path_icon_running), parent)
+class SleepPreventer(QSystemTrayIcon, QWidget):
+    def __init__(self):
+        super(QSystemTrayIcon, self).__init__()
+        super(QWidget, self).__init__()        
+     
+#%% TRAY SETTINGS
         
-        self.icon_running   = QIcon(path_icon_running)           
-        self.icon_stopped   = QIcon(path_icon_stopped)  
+        self.icon_running   = QIcon( path_icon_running)         
+        self.icon_stopped   = QIcon( path_icon_stopped)   
+        self.setIcon(self.icon_running)
         
-        menu = QMenu(parent)
+        menu = QMenu() 
         self.setContextMenu(menu)
         
-        # close option
-        option_close = QAction("Close")
-        menu.addAction(option_close)
-        option_close.triggered.connect(self.on_close)        
-
-
-        # on any click at icon 
+        self.action_close = QAction("Close")
+        menu.addAction(self.action_close)
+        
+        self.action_close.triggered.connect(self.on_close)   
         self.activated.connect(self.on_systray_activated)
         
         # thread
         self.running = True        
-        self.thread1 = threading.Thread( target=self.move, args = ())
-        self.thread1.setDaemon(True)
+        self.thread1 = threading.Thread( target=self.move, args = (), daemon=True)
         self.thread1.start()
-        
-        menu = QMenu(parent)
-        self.setContextMenu(menu)
-        
-        exitAction = menu.addAction("Close")
-        exitAction.triggered.connect(self.on_close)
-        
+      
+        self.running = True       
+        self.setVisible(True)  
         self.show()
+ 
+#%% METHODS
+    def on_window_hide(self, string):
+        self.window.hide()
+        self.setIcon(self.icon_stopped)
+        self.running = False
+        
 
+#%% CALLBACKS      
     def on_close(self):     
         self.hide()
         QCoreApplication.quit() 
@@ -72,13 +76,11 @@ class SleepPreventer(QSystemTrayIcon):
         while True:   
             time.sleep(1)
             _time += 1
-            if time%60 == 0 and self.running:
+            if _time%60 == 0 and self.running:
                 win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 0, 0, 0)
 
-#%% MAIN        
-if __name__ == '__main__':
-    app    = QApplication(sys.argv)
-    widget = QWidget()
-    sleep_preventer = SleepPreventer(widget)
-    sys.exit(app.exec_())
-    
+#%% MAIN  
+if __name__ == "__main__":
+    app = QApplication([])
+    sleep_preventer = SleepPreventer()
+    app.exec()
