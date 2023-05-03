@@ -4,8 +4,8 @@ Created on Tue Oct 18 10:08:29 2022
 
 @author: CAZ2BJ
 """
-from mklib.lib_io import mkIO
-mkIO.activate_env(1, "base",__file__,0)
+# from mklib.lib_io import mkIO
+# mkIO.activate_env(1, "base",__file__,0)
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QCoreApplication
