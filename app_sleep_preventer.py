@@ -74,7 +74,7 @@ class SleepPreventer(QSystemTrayIcon, QWidget):
         while True:   
             time.sleep(1)
             _time += 1
-            if _time%60 == 0 and self.running:
+            if _time%10 == 0 and self.running:
                 win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 0, 0, 0)
 
 #%% MAIN  
