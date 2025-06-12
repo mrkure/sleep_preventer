@@ -7,7 +7,7 @@ import win32api
 import win32con
 
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QCoreApplication  # type: ignore
+from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QSystemTrayIcon, QWidget, QAction, QMenu, QApplication
 
 PATH_ICON_RUNNING = rf"{os.path.dirname(os.path.realpath(__file__))}\res\running.ico"
