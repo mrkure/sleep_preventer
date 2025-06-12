@@ -16,14 +16,14 @@ path_icon_running = rf'{os.path.dirname(os.path.realpath(__file__))}\res\running
 path_icon_stopped = rf'{os.path.dirname(os.path.realpath(__file__))}\res\stopped.ico'
 
 class SleepPreventer(QSystemTrayIcon, QWidget):
-    def __init__(self):
-        super(QSystemTrayIcon, self).__init__()
-        super(QWidget, self).__init__()        
-     
-#%% TRAY SETTINGS
-        
-        self.icon_running   = QIcon( path_icon_running)         
-        self.icon_stopped   = QIcon( path_icon_stopped)   
+    """sleep preventer class"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # TRAY SETTINGS ------------------------------
+        self.icon_running = QIcon(PATH_ICON_RUNNING)
+        self.icon_stopped = QIcon(PATH_ICON_STOPPED)
         self.setIcon(self.icon_running)
         
         menu = QMenu() 
