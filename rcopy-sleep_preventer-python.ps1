@@ -53,14 +53,16 @@ function New-RunShortcut {
     param (
         [string]$environment,
         [string]$shortcutName,
-        [string]$workingDir
+        [string]$workingDir,
+        [string]$scriptLike,
+        [bool]$gui
     )
 
     $shortcutTarget = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
     $condaHook = "C:\Program Files\Anaconda3\shell\condabin\conda-hook.ps1"
 
     # Determine shortcut window style and icon
-    if ($shortcutName -like "*cmd*") {
+    if ($gui -eq $false) {
         $windowStyle = 1
         $iconIndex = 230
         $extraArg = "-noe"
@@ -71,19 +73,23 @@ function New-RunShortcut {
         $extraArg = "-w Hidden"
     }
 
+    $language = "&"
+    if($scriptLike -like "*.py"){
+        $language = "python"
+    }
     # Build the command to execute
     $shortcutArgs = "-ep Bypass $extraArg -Command `"& '$condaHook'; " +
-    "conda activate `"%USERPROFILE%\.conda\envs\$environment`"; " +
+    "conda activate $environment; " +
     "while (-not (Test-Path '$workingDir')) { Write-Host 'Waiting, target directory not available ...'; Start-Sleep -Seconds 10 }; " +
     "cd '$workingDir'; " +
-    "`$script = Get-ChildItem app*.py -File | Select-Object -First 1; " +
+    "`$script = Get-ChildItem $scriptLike -File | Select-Object -First 1; " +
     "if (-not `$script) { Write-Host 'No script found' -ForegroundColor Red; Start-Sleep -Seconds 60; exit }; " +
-    "python `$script.FullName`""
+    "$language `$script`""
 
     if ($env:USERNAME -eq "mrkure"){
         $shortcutArgs = "-ep Bypass $extraArg -Command `"& '$condaHook'; " +
-        "conda activate `"$env:USERPROFILE\.conda\envs\$environment`"; " +
-        "python (gci app*.py -File)[0]`""
+        "conda activate $environment; " +
+        "$language (gci $scriptLike -File)[0]`""
     }
 
     # Create the shortcut
@@ -102,10 +108,14 @@ function New-RunShortcut {
 
 New-RunShortcut -environment "work" `
     -shortcutName "run.lnk" `
-    -workingDir $folderPath
+    -workingDir $folderPath `
+    -scriptLike "app*.py" `
+    -gui $true 
+
 
 
 New-RunShortcut -environment "work" `
     -shortcutName "run_cmd.lnk" `
-    -workingDir $folderPath
-    
+    -workingDir $folderPath `
+    -scriptLike "app*.py" `
+    -gui $false 
